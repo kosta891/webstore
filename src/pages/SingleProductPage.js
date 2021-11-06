@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react'
-import { useParams, useHistory } from 'react-router-dom'
-import { useProductsContext } from '../context/products_context'
-import { single_product_url as url } from '../utils/constants'
-import { formatPrice } from '../utils/helpers'
+import React, { useEffect } from 'react';
+import { useParams, useHistory } from 'react-router-dom';
+import { useProductsContext } from '../context/products_context';
+import { single_product_url as url } from '../utils/constants';
+import { formatPrice } from '../utils/helpers';
 import {
   Loading,
   Error,
@@ -10,13 +10,76 @@ import {
   AddToCart,
   Stars,
   PageHero,
-} from '../components'
-import styled from 'styled-components'
-import { Link } from 'react-router-dom'
+} from '../components';
+import styled from 'styled-components';
+import { Link } from 'react-router-dom';
 
 const SingleProductPage = () => {
-  return <h4>single product page</h4>
-}
+  const { id } = useParams();
+  const {
+    single_product_loading: loading,
+    single_product: product,
+    single_product_error: error,
+    fetchSingleProduct,
+  } = useProductsContext();
+
+  useEffect(() => {
+    fetchSingleProduct(`${url}${id}`);
+  }, [id]);
+
+  if (loading) {
+    return <Loading />;
+  }
+
+  if (error) {
+    return <Error />;
+  }
+
+  const {
+    name,
+    price,
+    description,
+    stock,
+    stars,
+    reviews,
+    id: sku,
+    company,
+    images,
+  } = product;
+  return (
+    <Wrapper>
+      <PageHero title={name} product />
+      <div className='section section-center page'>
+        <Link className='btn' to='/products'>
+          back to products
+        </Link>
+        <div className='products-center'>
+          <ProductImages />
+          <section className='content'>
+            <h2>{name}</h2>
+            <Stars />
+            <h5 className='price'>{formatPrice(price)}</h5>
+            <p className='desc'>{description}</p>
+            <p className='info'>
+              <span>Available : </span>
+              {stock > 0 ? 'In stock' : 'Out of stock'}
+            </p>
+            <p className='info'>
+              <span>SKU : </span>
+              {sku}
+            </p>
+            <p className='info'>
+              <span>Brand : </span>
+              {company}
+            </p>
+            <hr />
+            {stock > 0 && <AddToCart />}
+          </section>
+        </div>
+      </div>
+    </Wrapper>
+  );
+};
 
 const Wrapper = styled.main`
   .product-center {
@@ -50,6 +113,6 @@ const Wrapper = styled.main`
       font-size: 1.25rem;
     }
   }
-`
+`;
 
-export default SingleProductPage
+export default SingleProductPage;
