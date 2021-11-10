@@ -11,22 +11,28 @@ import {
 
 const filter_reducer = (state, action) => {
   if (action.type === LOAD_PRODUCTS) {
+    let maxPrice = action.payload.map((p) => p.price);
+    maxPrice = Math.max(...maxPrice);
     return {
       ...state,
       all_products: [...action.payload],
       filtered_products: [...action.payload],
+      filters: { ...state.filters, max_price: maxPrice, price: maxPrice },
     };
   }
 
   if (action.type === SET_GRIDVIEW) {
     return { ...state, grid_view: true };
   }
+
   if (action.type === SET_LISTVIEW) {
     return { ...state, grid_view: false };
   }
+
   if (action.type === UPDATE_SORT) {
     return { ...state, sort: action.payload };
   }
+
   if (action.type === SORT_PRODUCTS) {
     const { sort, filtered_products } = state;
     let tempProducts = [...filtered_products];
@@ -44,6 +50,34 @@ const filter_reducer = (state, action) => {
     }
     return { ...state, filtered_products: tempProducts };
   }
+
+  if (action.type === UPDATE_FILTERS) {
+    const { name, value } = action.payload;
+
+    return { ...state, filters: { ...state.filters, [name]: value } };
+  }
+
+  if (action.type === CLEAR_FILTERS) {
+    console.log('kobaja');
+    return {
+      ...state,
+      filters: {
+        ...state.filters,
+        text: '',
+        company: 'all',
+        category: 'all',
+        color: 'all',
+
+        price: state.filters.max_price,
+        shipping: false,
+      },
+    };
+  }
+
+  if (action.type === FILTER_PRODUCTS) {
+    return { ...state };
+  }
+
   return state;
   throw new Error(`No Matching "${action.type}" - action type`);
 };
